@@ -37,7 +37,7 @@ def edit_image_workflow(img_file, index):
 
     if canvas_result.image_data is not None:
         edited_img = Image.fromarray(canvas_result.image_data.astype("uint8"))
-        output_path = os.path.join("input/images", f"edited_{img_file.name}")
+        output_path = os.path.join("input/images", f"edited_{img_file.name.encode('utf-8', 'ignore').decode('utf-8', 'ignore')}")
         edited_img.save(output_path, format="PNG")
         st.success(f"\u05e0\u05e9\u05de\u05e8 \u05e2\u05dd \u05d4\u05e1\u05d9\u05de\u05d5\u05e0\u05d9\u05dd: {output_path}")
         return output_path
@@ -175,15 +175,17 @@ if st.button("\u05e4\u05e8\u05e1 \u05d3\u05d5\u05d7"):
 
             final_image_paths = []
             for idx, img in enumerate(uploaded_images):
-                st.write(f"---\n### תמונה {idx+1}: {img.name}")
-                edit_mode = st.checkbox(f"⬇️ ערוך את {img.name}", key=f"edit_{idx}")
+                safe_name = img.name.encode('utf-8', 'ignore').decode('utf-8', 'ignore')
+                st.write(f"---
+### תמונה {idx+1}: {safe_name}")
+                edit_mode = st.checkbox(f"⬇️ ערוך את {safe_name}", key=f"edit_{idx}")
 
                 if edit_mode:
                     result = edit_image_workflow(img, idx)
                     if result:
                         final_image_paths.append(result)
                 else:
-                    raw_path = os.path.join("input/images", f"original_{img.name}")
+                    raw_path = os.path.join("input/images", f"original_{safe_name}")
                     with open(raw_path, "wb") as f:
                         f.write(img.getbuffer())
                     final_image_paths.append(raw_path)
