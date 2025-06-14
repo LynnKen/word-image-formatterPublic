@@ -7,40 +7,8 @@ from docx.enum.text import WD_PARAGRAPH_ALIGNMENT
 from docx.oxml import OxmlElement
 from docx.oxml.ns import qn
 import streamlit as st
-from streamlit_cropper import st_cropper
-from streamlit_drawable_canvas import st_canvas
 
 st.set_page_config(page_title="Word Report Generator", layout="centered")
-
-# Image editing function
-def edit_image_workflow(img_file, index):
-    st.subheader(f"Edit Image {index+1}: {img_file.name}")
-    image = Image.open(img_file)
-
-    # Crop
-    cropped_img = st_cropper(image, box_color='#FA8072', aspect_ratio=None)
-    st.image(cropped_img, caption="Selected area")
-
-    # Draw
-    canvas_result = st_canvas(
-        fill_color="rgba(255, 255, 0, 0.3)",
-        stroke_width=3,
-        stroke_color="#000000",
-        background_image=cropped_img,
-        update_streamlit=True,
-        height=cropped_img.height,
-        width=cropped_img.width,
-        drawing_mode="freedraw",
-        key=f"canvas_{index}",
-    )
-
-    if canvas_result.image_data is not None:
-        edited_img = Image.fromarray(canvas_result.image_data.astype("uint8"))
-        output_path = os.path.join("input/images", f"edited_{img_file.name.encode('utf-8', 'ignore').decode('utf-8', 'ignore')}")
-        edited_img.save(output_path, format="PNG")
-        st.success(f"Saved with annotations: {output_path}")
-        return output_path
-    return None
 
 # Insert images into Word doc
 def insert_images_ai_style(doc_path, images_folder, output_path):
@@ -136,31 +104,16 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-st.markdown("## 📄 Word Report Generator with Image Editor", unsafe_allow_html=True)
+st.markdown("## 📄 Word Report Generator", unsafe_allow_html=True)
 
 if 'restart' not in st.session_state:
     st.session_state.restart = False
-if 'edit_index' not in st.session_state:
-    st.session_state.edit_index = None
 
 uploaded_file = st.file_uploader("Upload Word file (.docx only)", type=["docx"])
 uploaded_images = st.file_uploader("Upload images", type=["jpg", "jpeg", "png"], accept_multiple_files=True)
 
 if uploaded_file and uploaded_file.name.endswith(".doc"):
     st.error("⚠️ .doc files are not supported. Please convert to .docx and try again.")
-    st.stop()
-
-# If editing a specific image
-if st.session_state.edit_index is not None and uploaded_images:
-    img = uploaded_images[st.session_state.edit_index]
-    safe_name = img.name.encode('utf-8', 'ignore').decode('utf-8', 'ignore')
-    st.markdown(f"### Editing Image {st.session_state.edit_index + 1}: {safe_name}", unsafe_allow_html=True)
-    result = edit_image_workflow(img, st.session_state.edit_index)
-    if result:
-        st.image(result, caption="Edited preview", use_column_width=True)
-        st.success("✅ Image saved!")
-    if st.button("Back to image list"):
-        st.session_state.edit_index = None
     st.stop()
 
 if st.button("Generate Report"):
@@ -179,18 +132,12 @@ if st.button("Generate Report"):
             with open(input_path, "wb") as f:
                 f.write(uploaded_file.getbuffer())
 
-            final_image_paths = []
             for idx, img in enumerate(uploaded_images):
                 safe_name = img.name.encode('utf-8', 'ignore').decode('utf-8', 'ignore')
-                st.markdown(f"### Image {idx+1}: {safe_name}\n---", unsafe_allow_html=True)
-                if st.button(f"✏️ Edit {safe_name}", key=f"edit_button_{idx}"):
-                    st.session_state.edit_index = idx
-                    st.experimental_rerun()
-                else:
-                    raw_path = os.path.join("input/images", f"original_{safe_name}")
-                    with open(raw_path, "wb") as f:
-                        f.write(img.getbuffer())
-                    final_image_paths.append(raw_path)
+                st.image(img, caption=f"Image {idx+1}: {safe_name}", use_column_width=True)
+                img_path = os.path.join("input/images", safe_name)
+                with open(img_path, "wb") as f:
+                    f.write(img.getbuffer())
 
             output_path = os.path.join("output", "ready_report.docx")
             final_path = insert_images_ai_style(input_path, "input/images", output_path)
