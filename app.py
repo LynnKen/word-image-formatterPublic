@@ -37,11 +37,17 @@ def insert_images_ai_style(doc_path, images_folder, output_path):
                 if img_idx >= total_images:
                     break
                 img_path = os.path.join(images_folder, images[img_idx])
+
+                # Compress image to 300 DPI before inserting
+                compressed_path = os.path.join(images_folder, f"compressed_{images[img_idx]}")
+                with Image.open(img_path) as im:
+                    im.save(compressed_path, dpi=(300, 300))
+
                 cell = table.cell(row, col)
                 paragraph = cell.paragraphs[0]
                 paragraph.paragraph_format.right_to_left = True
                 run = paragraph.add_run()
-                run.add_picture(img_path, width=Inches(2.5))
+                run.add_picture(compressed_path, width=Inches(2.5))
                 paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
 
                 caption = cell.add_paragraph(f"{page_number}.{image_number}")
@@ -113,16 +119,14 @@ uploaded_file = st.file_uploader("Upload Word file (.docx only)", type=["docx"])
 uploaded_images = st.file_uploader("Upload images", type=["jpg", "jpeg", "png"], accept_multiple_files=True)
 
 if uploaded_images:
-    # Arrange images into 3 rows and dynamic number of columns, filled bottom to top, left to right
     num_rows = 3
     num_images = len(uploaded_images)
     num_cols = (num_images + num_rows - 1) // num_rows
 
-    # Fill columns bottom to top from right to left
     grid = [[] for _ in range(num_cols)]
     for idx, img in enumerate(uploaded_images):
-        col_idx = num_cols - 1 - (idx // num_rows)  # fill from right to left
-        grid[col_idx].insert(0, img)  # insert at top
+        col_idx = num_cols - 1 - (idx // num_rows)
+        grid[col_idx].insert(0, img)
 
     cols = st.columns(num_cols)
     for col, images in zip(cols, grid):
@@ -157,14 +161,14 @@ if st.button("Generate Report"):
                 with open(img_path, "wb") as f:
                     f.write(img.getbuffer())
 
-            output_path = os.path.join("output", "ready_report.docx")
+            output_path = os.path.join("output", uploaded_file.name)
             final_path = insert_images_ai_style(input_path, "input/images", output_path)
 
             with open(final_path, "rb") as f:
                 report_data = f.read()
 
             st.success("✅ Report generated successfully!")
-            st.download_button("Download Report", data=report_data, file_name="ready_report.docx")
+            st.download_button("Download Report", data=report_data, file_name=uploaded_file.name)
 
             if st.button("Generate another report"):
                 st.session_state.restart = True
