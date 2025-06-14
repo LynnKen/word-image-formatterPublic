@@ -118,13 +118,13 @@ if uploaded_images:
     num_images = len(uploaded_images)
     num_cols = (num_images + num_rows - 1) // num_rows
 
-    # Fill columns bottom to top
+    # Fill columns bottom to top from right to left
     grid = [[] for _ in range(num_cols)]
     for idx, img in enumerate(uploaded_images):
-        col_idx = idx // num_rows
+        col_idx = num_cols - 1 - (idx // num_rows)  # fill from right to left
         grid[col_idx].insert(0, img)  # insert at top
 
-    cols = st.columns(num_cols)  # reverse the columns order for right-to-left filling
+    cols = st.columns(num_cols)
     for col, images in zip(cols, grid):
         with col:
             for img in images:
