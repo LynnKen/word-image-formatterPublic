@@ -133,8 +133,8 @@ if st.button("Generate Report"):
                 f.write(uploaded_file.getbuffer())
 
             for idx, img in enumerate(uploaded_images):
-    safe_name = img.name.encode('utf-8', 'ignore').decode('utf-8', 'ignore')
-    st.image(img, width=150)
+                safe_name = img.name.encode('utf-8', 'ignore').decode('utf-8', 'ignore')
+                st.image(img, width=100)
                 img_path = os.path.join("input/images", safe_name)
                 with open(img_path, "wb") as f:
                     f.write(img.getbuffer())
