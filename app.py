@@ -150,12 +150,15 @@ if 'restart' not in st.session_state:
 uploaded_file = st.file_uploader("העלה קובץ Word (.docx בלבד)", type=["docx"])
 uploaded_images = st.file_uploader("העלה תמונות", type=["jpg", "jpeg", "png"], accept_multiple_files=True)
 
+if uploaded_file and uploaded_file.name.endswith(".doc"):
+    st.error("⚠️ לא ניתן להעלות קבצי .doc ישנים. שמור את הקובץ כ־.docx ונסה שוב.")
+    st.stop()
+
 if st.button("\u05e4\u05e8\u05e1 \u05d3\u05d5\u05d7"):
     if not uploaded_file or not uploaded_images:
         st.error("\u05d9\u05e9 \u05dc\u05d4\u05e2\u05dc\u05d5\u05ea \u05d2\u05dd \u05e7\u05d5\u05d1\u05e5 Word \u05d5\u05d2\u05dd \u05ea\u05de\u05d5\u05e0\u05d5\u05ea")
     else:
         try:
-            # ניקוי תיקיות ישנות
             if os.path.exists("input"):
                 shutil.rmtree("input")
             if os.path.exists("output"):
@@ -163,12 +166,10 @@ if st.button("\u05e4\u05e8\u05e1 \u05d3\u05d5\u05d7"):
             os.makedirs("input/images", exist_ok=True)
             os.makedirs("output", exist_ok=True)
 
-            # שמירת הקובץ
             input_path = os.path.join("input", uploaded_file.name)
             with open(input_path, "wb") as f:
                 f.write(uploaded_file.getbuffer())
 
-            # מעבר על כל תמונה
             final_image_paths = []
             for idx, img in enumerate(uploaded_images):
                 st.write(f"---\n### תמונה {idx+1}: {img.name}")
@@ -184,7 +185,6 @@ if st.button("\u05e4\u05e8\u05e1 \u05d3\u05d5\u05d7"):
                         f.write(img.getbuffer())
                     final_image_paths.append(raw_path)
 
-            # הפקת הדו"ח
             output_path = os.path.join("output", "ready_report.docx")
             final_path = insert_images_ai_style(input_path, "input/images", output_path)
 
@@ -194,7 +194,6 @@ if st.button("\u05e4\u05e8\u05e1 \u05d3\u05d5\u05d7"):
             st.success("\ud83d\udcc4 הדו\"ח הופק בהצלחה!")
             st.download_button("\u05d4\u05d5\u05e8\u05d3 \u05d0\u05ea \u05d4\u05d3\u05d5\"\u05d7", data=report_data, file_name="ready_report.docx")
 
-            # כפתור להתחלה מחדש
             if st.button("\u05d4\u05e4\u05e7 \u05d3\u05d5\u05d7 \u05e0\u05d5\u05e1\u05e3"):
                 st.session_state.restart = True
 
