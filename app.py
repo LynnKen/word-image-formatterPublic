@@ -113,21 +113,22 @@ uploaded_file = st.file_uploader("Upload Word file (.docx only)", type=["docx"])
 uploaded_images = st.file_uploader("Upload images", type=["jpg", "jpeg", "png"], accept_multiple_files=True)
 
 if uploaded_images:
-    # Display images in columns with 3 images per column, matching file_uploader order
+    # Arrange images into 3 rows and dynamic number of columns, filled left to right, top to bottom
     num_rows = 3
-    num_cols = (len(uploaded_images) + num_rows - 1) // num_rows
-    columns = [[] for _ in range(num_cols)]
+    num_images = len(uploaded_images)
+    num_cols = (num_images + num_rows - 1) // num_rows
 
-    for idx, img in enumerate(uploaded_images):
-        col_idx = idx // num_rows
-        columns[col_idx].append(img)
-
+    # Fill grid row-wise, then transpose to columns
+    grid = [uploaded_images[i::num_rows] for i in range(num_rows)]
     cols = st.columns(num_cols)
-    for col, imgs in zip(cols, columns):
-        with col:
-            for img in imgs:
-                st.image(img, width=160)
-                st.caption(img.name)
+
+    for col_idx in range(num_cols):
+        for row_idx in range(num_rows):
+            if col_idx < len(grid[row_idx]):
+                img = grid[row_idx][col_idx]
+                with cols[col_idx]:
+                    st.image(img, width=160)
+                    st.caption(img.name)
 
 if uploaded_file and uploaded_file.name.endswith(".doc"):
     st.error("⚠️ .doc files are not supported. Please convert to .docx and try again.")
