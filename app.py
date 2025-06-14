@@ -5,6 +5,7 @@ import os
 import streamlit as st
 from PIL import Image
 from formatter import insert_images_ai_style
+from streamlit_drawable_canvas import st_canvas
 
 # Add custom CSS for RTL support
 st.markdown("""
