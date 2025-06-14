@@ -48,6 +48,9 @@ def insert_images_ai_style(doc_path, images_folder, output_path):
                 paragraph.paragraph_format.right_to_left = True
                 run = paragraph.add_run()
                 run.add_picture(compressed_path, width=Inches(2.5))
+                inline_shape = paragraph.runs[-1]._element
+                inline_shape.getparent().remove(inline_shape)
+                paragraph._p.addnext(inline_shape)
                 paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
 
                 caption = cell.add_paragraph(f"{page_number}.{image_number}")
