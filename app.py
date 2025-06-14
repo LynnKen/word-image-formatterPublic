@@ -113,12 +113,14 @@ uploaded_file = st.file_uploader("Upload Word file (.docx only)", type=["docx"])
 uploaded_images = st.file_uploader("Upload images", type=["jpg", "jpeg", "png"], accept_multiple_files=True)
 
 if uploaded_images:
-    for img in uploaded_images:
-        cols = st.columns([1, 5])
-        with cols[0]:
-            st.image(img, width=60)
-        with cols[1]:
-            st.write(f"{img.name}")
+    # Display images in rows of 3 per column
+    rows = [uploaded_images[i:i+3] for i in range(0, len(uploaded_images), 3)]
+    for row in rows:
+        cols = st.columns(len(row))
+        for col, img in zip(cols, row):
+            with col:
+                st.image(img, width=100)
+                st.caption(img.name)
 
 if uploaded_file and uploaded_file.name.endswith(".doc"):
     st.error("⚠️ .doc files are not supported. Please convert to .docx and try again.")
