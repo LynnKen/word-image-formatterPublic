@@ -113,12 +113,19 @@ uploaded_file = st.file_uploader("Upload Word file (.docx only)", type=["docx"])
 uploaded_images = st.file_uploader("Upload images", type=["jpg", "jpeg", "png"], accept_multiple_files=True)
 
 if uploaded_images:
-    num_cols = (len(uploaded_images) + 2) // 3
-    rows = [uploaded_images[i:i + 3] for i in range(0, len(uploaded_images), 3)]
-    for row in rows:
-        cols = st.columns(len(row))
-        for img, col in zip(row, cols):
-            with col:
+    # Display images in columns with 3 images per column, matching file_uploader order
+    num_rows = 3
+    num_cols = (len(uploaded_images) + num_rows - 1) // num_rows
+    columns = [[] for _ in range(num_cols)]
+
+    for idx, img in enumerate(uploaded_images):
+        col_idx = idx // num_rows
+        columns[col_idx].append(img)
+
+    cols = st.columns(num_cols)
+    for col, imgs in zip(cols, columns):
+        with col:
+            for img in imgs:
                 st.image(img, width=160)
                 st.caption(img.name)
 
