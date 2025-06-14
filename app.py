@@ -8,7 +8,6 @@ from docx.oxml import OxmlElement
 from docx.oxml.ns import qn
 import streamlit as st
 
-# הגדרת תצוגת העמוד - חובה לפני כל קריאה ל-st
 st.set_page_config(page_title="Word Report Generator", layout="centered")
 from streamlit_cropper import st_cropper
 from streamlit_drawable_canvas import st_canvas
