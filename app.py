@@ -140,12 +140,27 @@ st.markdown("## 📄 Word Report Generator with Image Editor", unsafe_allow_html
 
 if 'restart' not in st.session_state:
     st.session_state.restart = False
+if 'edit_index' not in st.session_state:
+    st.session_state.edit_index = None
 
 uploaded_file = st.file_uploader("Upload Word file (.docx only)", type=["docx"])
 uploaded_images = st.file_uploader("Upload images", type=["jpg", "jpeg", "png"], accept_multiple_files=True)
 
 if uploaded_file and uploaded_file.name.endswith(".doc"):
     st.error("⚠️ .doc files are not supported. Please convert to .docx and try again.")
+    st.stop()
+
+# If editing a specific image
+if st.session_state.edit_index is not None and uploaded_images:
+    img = uploaded_images[st.session_state.edit_index]
+    safe_name = img.name.encode('utf-8', 'ignore').decode('utf-8', 'ignore')
+    st.markdown(f"### Editing Image {st.session_state.edit_index + 1}: {safe_name}", unsafe_allow_html=True)
+    result = edit_image_workflow(img, st.session_state.edit_index)
+    if result:
+        st.image(result, caption="Edited preview", use_column_width=True)
+        st.success("✅ Image saved!")
+    if st.button("Back to image list"):
+        st.session_state.edit_index = None
     st.stop()
 
 if st.button("Generate Report"):
@@ -168,12 +183,9 @@ if st.button("Generate Report"):
             for idx, img in enumerate(uploaded_images):
                 safe_name = img.name.encode('utf-8', 'ignore').decode('utf-8', 'ignore')
                 st.markdown(f"### Image {idx+1}: {safe_name}\n---", unsafe_allow_html=True)
-                edit_mode = st.checkbox(f"✏️ Edit {safe_name}", key=f"edit_{idx}")
-
-                if edit_mode:
-                    result = edit_image_workflow(img, idx)
-                    if result:
-                        final_image_paths.append(result)
+                if st.button(f"✏️ Edit {safe_name}", key=f"edit_button_{idx}"):
+                    st.session_state.edit_index = idx
+                    st.experimental_rerun()
                 else:
                     raw_path = os.path.join("input/images", f"original_{safe_name}")
                     with open(raw_path, "wb") as f:
