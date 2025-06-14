@@ -127,6 +127,8 @@ def set_cell_rtl(cell):
     bidi.set(qn('w:val'), '1')
     tcPr.append(bidi)
 
+st.set_page_config(page_title="Word Report Generator", layout="centered")
+
 # CSS RTL
 st.markdown("""
     <style>
