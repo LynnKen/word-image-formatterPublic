@@ -113,15 +113,16 @@ uploaded_file = st.file_uploader("Upload Word file (.docx only)", type=["docx"])
 uploaded_images = st.file_uploader("Upload images", type=["jpg", "jpeg", "png"], accept_multiple_files=True)
 
 if uploaded_images:
-    # Arrange images into 3 rows and dynamic number of columns, filled top to bottom, left to right
+    # Arrange images into 3 rows and dynamic number of columns, filled bottom to top, left to right
     num_rows = 3
     num_images = len(uploaded_images)
     num_cols = (num_images + num_rows - 1) // num_rows
 
+    # Fill columns bottom to top
     grid = [[] for _ in range(num_cols)]
     for idx, img in enumerate(uploaded_images):
         col_idx = idx // num_rows
-        grid[col_idx].append(img)
+        grid[col_idx].insert(0, img)  # insert at top
 
     cols = st.columns(num_cols)
     for col, images in zip(cols, grid):
