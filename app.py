@@ -7,8 +7,9 @@ from docx.enum.text import WD_PARAGRAPH_ALIGNMENT
 from docx.oxml import OxmlElement
 from docx.oxml.ns import qn
 import streamlit as st
-
 st.set_page_config(page_title="Word Report Generator", layout="centered")
+
+# הגדרת תצוגת העמוד - חובה לפני כל קריאה ל-st
 from streamlit_cropper import st_cropper
 from streamlit_drawable_canvas import st_canvas
 
@@ -126,7 +127,6 @@ def set_cell_rtl(cell):
     bidi.set(qn('w:val'), '1')
     tcPr.append(bidi)
 
-st.set_page_config(page_title="Word Report Generator", layout="centered")
 
 # CSS RTL
 st.markdown("""
@@ -146,7 +146,6 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-st.set_page_config(page_title="Word Report Generator", layout="centered")
 st.markdown("## 📄 מחולל דוחות Word עם תמונות (כולל עריכה)", unsafe_allow_html=True)
 
 if 'restart' not in st.session_state:
