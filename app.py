@@ -1,16 +1,33 @@
 from docx import Document
 from docx.shared import Inches, Pt
 from docx.enum.text import WD_PARAGRAPH_ALIGNMENT
-from docx.oxml.ns import qn
 import os
 import streamlit as st
 from PIL import Image
 from formatter import insert_images_ai_style
 
+# Add custom CSS for RTL support
+st.markdown("""
+    <style>
+        .stTextInput > div > div > input {
+            direction: rtl;
+            text-align: right;
+        }
+        .stTextArea > div > div > textarea {
+            direction: rtl;
+            text-align: right;
+        }
+        .stMarkdown {
+            direction: rtl;
+            text-align: right;
+        }
+    </style>
+""", unsafe_allow_html=True)
+
 # ממשק משתמש
 st.title("📄 Word Image Formatter (AI Mode)")
 
-uploaded_file = st.file_uploader("העלה קובץ Word ( .docx)", type=["docx"])
+uploaded_file = st.file_uploader("העלה קובץ Word (.doc או .docx)", type=["doc", "docx"])
 uploaded_images = st.file_uploader("העלה תמונות", type=["jpg", "jpeg", "png"], accept_multiple_files=True)
 
 if st.button("שבץ את התמונות לסוף הדוח"):
@@ -27,7 +44,10 @@ if st.button("שבץ את התמונות לסוף הדוח"):
             with open(input_path, "wb") as f:
                 f.write(uploaded_file.getbuffer())
 
-           
+            # המרה ל-DOCX אם צריך
+            if input_path.endswith(".doc"):
+                input_path = convert_doc_to_docx(input_path)
+
             # שמירת תמונות
             for img in uploaded_images:
                 img_path = os.path.join("input/images", img.name)
