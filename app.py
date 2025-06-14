@@ -176,7 +176,7 @@ if st.button("\u05e4\u05e8\u05e1 \u05d3\u05d5\u05d7"):
             final_image_paths = []
             for idx, img in enumerate(uploaded_images):
                 safe_name = img.name.encode('utf-8', 'ignore').decode('utf-8', 'ignore')
-                st.write(f"---
+                st.markdown(f"---
 ### תמונה {idx+1}: {safe_name}")
                 edit_mode = st.checkbox(f"⬇️ ערוך את {safe_name}", key=f"edit_{idx}")
 
