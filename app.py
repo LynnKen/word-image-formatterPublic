@@ -112,6 +112,14 @@ if 'restart' not in st.session_state:
 uploaded_file = st.file_uploader("Upload Word file (.docx only)", type=["docx"])
 uploaded_images = st.file_uploader("Upload images", type=["jpg", "jpeg", "png"], accept_multiple_files=True)
 
+if uploaded_images:
+    for img in uploaded_images:
+        cols = st.columns([1, 5])
+        with cols[0]:
+            st.image(img, width=60)
+        with cols[1]:
+            st.write(f"{img.name}")
+
 if uploaded_file and uploaded_file.name.endswith(".doc"):
     st.error("⚠️ .doc files are not supported. Please convert to .docx and try again.")
     st.stop()
@@ -134,7 +142,6 @@ if st.button("Generate Report"):
 
             for idx, img in enumerate(uploaded_images):
                 safe_name = img.name.encode('utf-8', 'ignore').decode('utf-8', 'ignore')
-                st.image(img, width=100)
                 img_path = os.path.join("input/images", safe_name)
                 with open(img_path, "wb") as f:
                     f.write(img.getbuffer())
