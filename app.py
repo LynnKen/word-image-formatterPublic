@@ -143,7 +143,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 st.set_page_config(page_title="Word Report Generator", layout="centered")
-st.markdown("## 📄 מחולל דוחות Word עם תמונות (כולל עריכה)", unsafe_allow_html=True)")
+st.markdown("## 📄 מחולל דוחות Word עם תמונות (כולל עריכה)", unsafe_allow_html=True)
 
 if 'restart' not in st.session_state:
     st.session_state.restart = False
